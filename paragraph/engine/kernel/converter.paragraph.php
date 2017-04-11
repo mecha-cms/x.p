@@ -18,10 +18,10 @@ class Paragraph {
     // Run converter…
     public function run($text) {
         if (trim($text) === "") return $text;
-        $s = '#(<\/?(?:' . $this->ignore . '|p)(?:' . $this->z . ')|<!--[\s\S]*?-->)#';
+        $s = '#(<!--[\s\S]*?-->|<\/?(?:' . $this->ignore . '|p)(?:' . $this->z . '))#';
         $text = str_replace(["\r\n", "\r"], "\n", $text) . "\n\n";
         $text = $this->br($text);
-        $parts = preg_split($s, $text, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split($s, $text, null, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
         $text = "";
         $x = 0;
         foreach ($parts as $v) {
@@ -72,30 +72,27 @@ class Paragraph {
         return trim(str_replace(
             '<br>',
             "<br>\n",
-            preg_replace(
-                [
-                    '#<(\/?[^\s]+?)(' . $this->z . ')#',
-                    '#\n*<(\/?(?:' . $this->i . '))(' . $this->z . ')\n*#',
-                    '#(^|[^>])\n+\s*<#',
-                    '#>\n+\s*([^<]|$)#',
-                    '#\n*<(' . $this->ignore . ')(' . $this->z . ')\n*([\s\S]*?)\n*<\/\1>\n*#',
-                    '#><(hr|img|input|svg)(' . $this->z . ')<(?!\/)#',
-                    '#<\/(' . $this->ignore . ')>\n+<(' . $this->ignore . ')(' . $this->z . ')#',
-                    '#<(script|style)(' . $this->z . ')\n*([\s\S]+?)\n*<\/\1>#',
-                    '#<([-:\w]+?)(' . $this->z . ')\s*<\/\1>#'
-                ],
-                [
-                    "\n\n<$1$2\n\n",
-                    '<$1$2',
-                    '$1<',
-                    '>$1',
-                    "\n<$1$2$3</$1>\n",
-                    ">\n<$1$2\n<",
-                    "</$1>\n<$2$3",
-                    "<$1$2\n$3\n</$1>",
-                    '<$1$2</$1>'
-                ],
-            $text)
+            preg_replace([
+                '#<(\/?[^\s]+?)(' . $this->z . ')#',
+                '#\n*<(\/?(?:' . $this->i . '))(' . $this->z . ')\n*#',
+                '#(^|[^>])\n+\s*<#',
+                '#>\n+\s*([^<]|$)#',
+                '#\n*<(' . $this->ignore . ')(' . $this->z . ')\n*([\s\S]*?)\n*<\/\1>\n*#',
+                '#><(hr|img|input|svg)(' . $this->z . ')<(?!\/)#',
+                '#<\/(' . $this->ignore . ')>\n+<(' . $this->ignore . ')(' . $this->z . ')#',
+                '#<(script|style)(' . $this->z . ')\n*([\s\S]+?)\n*<\/\1>#',
+                '#<([-:\w]+?)(' . $this->z . ')\s*<\/\1>#'
+            ], [
+                "\n\n<$1$2\n\n",
+                '<$1$2',
+                '$1<',
+                '>$1',
+                "\n<$1$2$3</$1>\n",
+                ">\n<$1$2\n<",
+                "</$1>\n<$2$3",
+                "<$1$2\n$3\n</$1>",
+                '<$1$2</$1>'
+            ], $text)
         ));
     }
 
