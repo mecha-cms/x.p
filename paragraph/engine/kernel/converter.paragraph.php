@@ -5,7 +5,7 @@
 class Paragraph {
 
     // Skip parsing process if we are in these HTML tag(s)
-    public $ignore = 'h[1-6]|kbd|math|pre|script|style|textarea';
+    public $ignore = 'code|h[1-6]|kbd|math|pre|script|style|textarea';
 
     // May or may not contain paragraph tag(s)
     public $auto = 'dd|div|(?:fig)?caption|li|td';
@@ -18,7 +18,8 @@ class Paragraph {
     // Run converter…
     public function run($text) {
         if (trim($text) === "") return $text;
-        $s = '#(<!--[\s\S]*?-->|<\/?(?:' . $this->ignore . '|p)(?:' . $this->z . '))#';
+        $ignore = preg_replace('#(^|\|)(?:' . $this->i . ')(\||$)#', '$1$2', $this->ignore);
+        $s = '#(<!--[\s\S]*?-->|<\/?(?:' . $ignore . '|p)(?:' . $this->z . '))#';
         $text = str_replace(["\r\n", "\r"], "\n", $text) . "\n\n";
         $text = $this->br($text);
         $parts = preg_split($s, $text, null, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
