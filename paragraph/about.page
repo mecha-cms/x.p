@@ -3,7 +3,7 @@ title: Automatic Paragraph
 description: Convert line break to paragraph.
 author: Taufik Nurrohman
 type: Markdown
-version: 2.0.0
+version: 2.1.0
 ...
 
 This plugin works only for pages with `type` of `HTML`.
@@ -45,6 +45,6 @@ Lorem ipsum dolor sit amet.</code></pre>
 <p>Lorem ipsum dolor sit amet.</p>
 ~~~
 
-[Test](/lot/extend/plugin/lot/worker/paragraph/lot/asset/php/test.php) {.button target="_blank"}
+[Test](http://127.0.0.1/lot/x/plugin/lot/paragraph/lot/asset/php/test.php) {.button target="_blank"}
 
 <!-- block:donate -->

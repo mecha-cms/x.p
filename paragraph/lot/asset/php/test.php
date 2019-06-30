@@ -363,14 +363,11 @@ This is some text.
 This is some text.
 EOL;
 
-include __DIR__ . '../../../../engine/kernel/converter.paragraph.php';
+include __DIR__ . '/../../../../engine/kernel/to.paragraph.php';
 
-$parser = new Converter\Paragraph;
+$parser = new To\Paragraph;
 
-echo '<h1>Input</h1><pre>' . htmlspecialchars($test) . '</pre><hr>';
-echo '<h1>Output</h1><pre>' . fn_debug($parser->run($test)) . '</pre>';
-
-function fn_debug($text) {
+$t = function($text) {
     global $parser;
     $s = '&lt;span style=&quot;display:inline-block;width:100%;margin:1px 0 0;color:black;background-color:';
     $text = preg_replace('#<p(>|\s[^<>]*?>)([\s\S]*?)<\/p>#', $s . 'green;&quot;&gt;<p$1$2</p>&lt;/span&gt;', $text);
@@ -380,7 +377,10 @@ function fn_debug($text) {
     $text = htmlspecialchars($text);
     $text = str_replace(['&amp;lt;', '&amp;gt;', '&amp;quot;'], ['<', '>', '"'], $text);
     return $text;
-}
+};
+
+echo '<h1>Input</h1><pre>' . htmlspecialchars($test) . '</pre><hr>';
+echo '<h1>Output</h1><pre>' . $t($parser->apply($test)) . '</pre>';
 
 ?>
   </body>

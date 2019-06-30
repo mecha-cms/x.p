@@ -1,17 +1,13 @@
-<?php
+<?php namespace _\page;
 
-require __DIR__ . DS . 'engine' . DS . 'plug' . DS . 'to.php';
-
-function fn_converter_paragraph_replace($content, $lot) {
-    if (!isset($lot['type']) || $lot['type'] !== 'HTML') {
-        return $content;
+function paragraph($content) {
+    if ($this['type'] === 'HTML') {
+        return (new \To\Paragraph)->apply($content);
     }
-    return To::paragraph($content);
+    return $content;
 }
 
-Hook::set([
-    'page.description',
-    'page.content',
-    'comment.description',
-    'comment.content'
-], 'fn_converter_paragraph_replace', 2.1);
+\Hook::set([
+    '*.content',
+    '*.description'
+], __NAMESPACE__ . "\\paragraph", 2.1);

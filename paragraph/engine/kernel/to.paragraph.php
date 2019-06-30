@@ -1,4 +1,4 @@
-<?php namespace Converter;
+<?php namespace To;
 
 // Author: Taufik Nurrohman <https://github.com/tovic>
 
@@ -16,8 +16,10 @@ class Paragraph {
     protected $i = 'a|abbr|acronym|b|basefont|bdo|big|blink|button|cite|code|del|dfn|em|font|i|img|input|ins|kbd|listing|mar(?:k|quee)|nextid|nobr|q|r[pt]|ruby|s|samp|select|small|spacer|span|strike|strong|su[bp]|svg|textarea|time|tt|u|var|w?br|xm';
 
     // Run converter…
-    public function run($text) {
-        if (trim($text) === "") return $text;
+    public function apply($text) {
+        if (trim($text) === "" || strpos($text, '</p>') !== false) {
+            return $text;
+        }
         $ignore = preg_replace('#(^|\|)(?:' . $this->i . ')(\||$)#', '$1$2', $this->ignore);
         $s = '#(<!--[\s\S]*?-->|<\/?(?:' . $ignore . '|p)(?:' . $this->z . '))#';
         $text = str_replace(["\r\n", "\r"], "\n", $text) . "\n\n";

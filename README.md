@@ -4,7 +4,7 @@ Automatic Paragraph Plugin for Mecha
 Paragraph
 ---------
 
-The `Converter\Paragraph` class will convert double line break to `<p> … </p>` and single line break to `<br>`.
+The `To\Paragraph` class will convert double line break to `<p> … </p>` and single line break to `<br>`.
 
 ### Before
 
@@ -48,10 +48,10 @@ Lorem ipsum dolor sit amet.</code></pre>
 ### Class Usage
 
 ~~~ .php
-require '../engine/kernel/converter.paragraph.php';
+require '../engine/kernel/to.paragraph.php';
 
-$parser = new Converter\Paragraph;
-$parser->ignore = 'pre|code'; // settings…
+$parser = new To\Paragraph;
+$parser->ignore = 'pre|code'; // Settings…
 
-echo $parser->run('Lorem ipsum dolor sit amet.');
+echo $parser->apply('Lorem ipsum dolor sit amet.');
 ~~~
