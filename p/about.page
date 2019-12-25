@@ -1,16 +1,21 @@
 ---
 title: Automatic Paragraph
-description: Convert line break to paragraph.
+description: Convert line break sequences into paragraph and break elements.
 author: Taufik Nurrohman
 type: Markdown
-version: 2.1.0
+version: 2.2.0
+
+use:
+  '.\lot\x\page': 1
 ...
 
-This plugin works only for pages with `type` of `HTML`.
+This extension inserts `<p>` and `<br>` tags automatically to the page content by detecting the surrounding `\n` characters. This extension will pay attention to which parts need to be automated and which do not. For example, this extension will never insert paragraph tags within the `<pre>`, `<script>`, `<style>` and `<textarea>` elements. This extension works only for pages with type of `HTML` and `text/html`.
 
 ### Before
 
 ~~~ .html
+<h1>Lorem Ipsum</h1>
+
 Lorem ipsum dolor sit amet.
 
 Lorem ipsum dolor sit amet.
@@ -26,12 +31,17 @@ Lorem ipsum dolor sit amet.
 Lorem ipsum dolor sit amet.
 </blockquote>
 
+<div>
+Lorem ipsum dolor sit amet.
+</div>
+
 <p>Lorem ipsum dolor sit amet.</p>
 ~~~
 
 ### After
 
 ~~~ .html
+<h1>Lorem Ipsum</h1>
 <p>Lorem ipsum dolor sit amet.</p>
 <p>Lorem ipsum dolor sit amet.<br>
 Lorem ipsum dolor sit amet.</p>
@@ -42,9 +52,8 @@ Lorem ipsum dolor sit amet.</code></pre>
 <p>Lorem ipsum dolor sit amet.</p>
 <p>Lorem ipsum dolor sit amet.</p>
 </blockquote>
+<div>
+<p>Lorem ipsum dolor sit amet.</p>
+</div>
 <p>Lorem ipsum dolor sit amet.</p>
 ~~~
-
-[Test](http://127.0.0.1/lot/x/plugin/lot/paragraph/lot/asset/php/test.php) {.button target="_blank"}
-
-<!-- block:donate -->
