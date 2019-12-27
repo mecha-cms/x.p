@@ -7,75 +7,81 @@ function p($content) {
     }
     // Automatic paragraph converter
     $p = function($v) {
-        return '<p>' . \strtr(\n(\trim($v)), [
+        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[^>]+)?(\s*\/)?>\s*/', '<br$1>', $v) : $v;
+        $v = \rtrim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
+        return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\trim($v), [
             "\n\n" => "</p>\n<p>",
             "\n" => "<br>\n"
-        ]) . '</p>';
+        ]) . "</p>" : \strtr($v = \trim($v), [
+            "\n" => "<br>\n"
+        ]) . ("" !== $v ? \P : "");
     };
-    // Allow automatic paragraph converter in these block(s)
-    $blocks_a = [
-        'blockquote',
-        'div',
-        'hr',
-        'li',
-        'ol',
-        'section',
-        'ul'
+    // `1`: Disallow converting to paragraph in these block(s)
+    // `2`: Allow converting to paragraph in these block(s)
+    $blocks = [
+        'blockquote' => 2,
+        'body' => 2,
+        'div' => 2,
+        'footer' => 2,
+        'header' => 2,
+        'hr' => 2,
+        'li' => 2,
+        'main' => 2,
+        'nav' => 2,
+        'ol' => 2,
+        'section' => 2,
+        'ul' => 2,
+        'dd' => 2,
+        'dl' => 2,
+        'dt' => 1,
+        'figure' => 1,
+        'form' => 1,
+        'fieldset' => 1, // Must come after `form`
+        'h1' => 1,
+        'h2' => 1,
+        'h3' => 1,
+        'h4' => 1,
+        'h5' => 1,
+        'h6' => 1,
+        'iframe' => 1,
+        'p' => 1,
+        'pre' => 1,
+        'script' => 1,
+        'style' => 1,
+        'table' => 1,
+        'textarea' => 1
     ];
-    // Disallow automatic paragraph converter in these block(s)
-    $blocks_b = [
-        'dl',
-        'dt',
-        'dd', // Must come after `dl`
-        'figure',
-        'form',
-        'fieldset', // Must come after `form`
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'iframe',
-        'nav',
-        'p',
-        'pre',
-        'script',
-        'section',
-        'style',
-        'table',
-        'textarea'
-    ];
-    $parts = \preg_split('/\s*(<!--[\s\S]*?-->|' . \implode('|', (function($blocks) {
-        foreach ($blocks as &$v) {
-            $v = '<' . $v . '(?:\s[^>]+)?>|<\/' . $v . '>';
+    $parts = \preg_split('/(<!--[\s\S]*?-->|' . \implode('|', \array_filter((function($blocks) {
+        foreach ($blocks as $k => &$v) {
+            if (2 === $v) {
+                $v = '<' . $k . '(?:\s[^>]+)?(?:\s*\/)?>|<\/' . $k . '>';
+            } else if (1 === $v) {
+                $v = '<' . $k . '(?:\s[^>]+)?>[\s\S]*?<\/' . $k . '>';
+            } else {
+                $v = null;
+            }
         }
         return $blocks;
-    })($blocks_a)) . '|' . \implode('|', (function($blocks) {
-        foreach ($blocks as &$v) {
-            $v = '<' . $v . '(?:\s[^>]+)?>[\s\S]*?<\/' . $v . '>';
-        }
-        return $blocks;
-    })($blocks_b)) . ')\s*/', $content, null, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
+    })($blocks))) . ')/', "\n" . \trim(\n($content), "\n") . "\n", null, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
     $out = "";
     foreach ($parts as $v) {
-        if ("" === ($v = \trim($v))) {
+        if ("" === $v || "\n" === $v || "\n\n" === $v) {
             continue;
         }
         if (0 === \strpos($v, '<!--') && '-->' === \substr($v, -3)) {
-            $out .= "\n" . $v;
+            $out .= $v;
         } else if ('<' === $v[0] && '>' === \substr($v, -1)) {
             $n = \explode(' ', \strstr(\substr($v, 1), '>', true), 2)[0];
-            if (\in_array(\trim($n, '/'), $blocks_a) || \in_array($n, $blocks_b)) {
+            if (isset($blocks[\trim($n, '/')])) {
                 $out .= "\n" . $v;
             } else {
-                $out .= "\n" . $p($v);
+                $out .= $p($v);
             }
         } else {
-            $out .= "\n" . $p($v);
+            $out .= $p($v);
         }
     }
-    return \substr($out, 1);
+    return \str_replace([\P . "\n", \P], "", $out);
 }
 
 \Hook::set([
