@@ -7,7 +7,7 @@ function p($content) {
     }
     // Automatic paragraph converter
     $p = function($v) {
-        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[^>]+)?(\s*\/)?>\s*/', '<br$1>', $v) : $v;
+        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[^>]*)?(\s*\/)?>\s*/', '<br$1>', $v) : $v;
         $v = \rtrim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
         return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\trim($v), [
             "\n\n" => "</p>\n<p>",
@@ -54,9 +54,9 @@ function p($content) {
     $parts = \preg_split('/(<!--[\s\S]*?-->|' . \implode('|', \array_filter((function($blocks) {
         foreach ($blocks as $k => &$v) {
             if (2 === $v) {
-                $v = '<' . $k . '(?:\s[^>]+)?(?:\s*\/)?>|<\/' . $k . '>';
+                $v = '<' . $k . '(?:\s[^>]*)?(?:\s*\/)?>|<\/' . $k . '>';
             } else if (1 === $v) {
-                $v = '<' . $k . '(?:\s[^>]+)?>[\s\S]*?<\/' . $k . '>';
+                $v = '<' . $k . '(?:\s[^>]*)?>[\s\S]*?<\/' . $k . '>';
             } else {
                 $v = null;
             }
