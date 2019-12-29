@@ -7,7 +7,7 @@ function p($content) {
     }
     // Automatic paragraph converter
     $p = function($v) {
-        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[^>]*)?(\s*\/)?>\s*/', '<br$1>', $v) : $v;
+        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[^>]*)?(\s*\/)?>\s*/', '<br$1>' . \P, $v) : $v;
         $v = \rtrim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
         return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\trim($v), [
             "\n\n" => "</p>\n<p>",
@@ -37,6 +37,7 @@ function p($content) {
         'figure' => 1,
         'form' => 1,
         'fieldset' => 1, // Must come after `form`
+        'head' => 1,
         'h1' => 1,
         'h2' => 1,
         'h3' => 1,
@@ -81,7 +82,7 @@ function p($content) {
             $out .= $p($v);
         }
     }
-    return \str_replace([\P . "\n", \P], "", $out);
+    return \str_replace([\P . "\n", \P], ["", "\n"], $out);
 }
 
 \Hook::set([
