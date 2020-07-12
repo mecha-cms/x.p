@@ -3,7 +3,7 @@ title: Automatic Paragraph
 description: Convert line break sequences into paragraph and hard break elements.
 author: Taufik Nurrohman
 type: Markdown
-version: 2.2.0
+version: 2.2.1
 
 use:
   '.\lot\x\page': 1

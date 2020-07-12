@@ -82,7 +82,8 @@ function p($content) {
             $out .= $p($v);
         }
     }
-    return \str_replace([\P . "\n", \P], ["", "\n"], $out);
+    $out = \str_replace([\P . "\n", \P], ["", "\n"], $out);
+    return "" !== $out ? $out : null;
 }
 
 \Hook::set([
