@@ -1,5 +1,5 @@
-Automatic Paragraph Extension for Mecha
-=======================================
+Automatic Paragraph Extension for [Mecha](https://github.com/mecha-cms/mecha)
+=============================================================================
 
 Release Notes
 -------------
