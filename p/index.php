@@ -1,4 +1,4 @@
-<?php namespace _\lot\x;
+<?php namespace x;
 
 function p($content) {
     $type = $this->type;
@@ -6,7 +6,7 @@ function p($content) {
         return $content;
     }
     // Automatic paragraph converter
-    $p = function($v) {
+    $p = static function($v) {
         $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[^>]*)?(\s*\/)?>\s*/', '<br$1>' . \P, $v) : $v;
         $v = \rtrim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
         return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\trim($v), [
@@ -52,7 +52,7 @@ function p($content) {
         'table' => 1,
         'textarea' => 1
     ];
-    $parts = \preg_split('/(<!--[\s\S]*?-->|' . \implode('|', \array_filter((function($blocks) {
+    $parts = \preg_split('/(<!--[\s\S]*?-->|' . \implode('|', \array_filter((static function($blocks) {
         foreach ($blocks as $k => &$v) {
             if (2 === $v) {
                 $v = '<' . $k . '(?:\s[^>]*)?(?:\s*\/)?>|<\/' . $k . '>';
@@ -82,7 +82,10 @@ function p($content) {
             $out .= $p($v);
         }
     }
-    $out = \str_replace([\P . "\n", \P], ["", "\n"], $out);
+    $out = \strtr($out, [
+        \P . "\n" => "",
+        \P => "\n"
+    ]);
     return "" !== $out ? $out : null;
 }
 
