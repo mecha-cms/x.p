@@ -1,5 +1,9 @@
 <?php namespace x;
 
+if (\defined("\\TEST") && 'x.p' === \TEST) {
+    require __DIR__ . \D . 'test.php';
+}
+
 function p($content) {
     if (!$content) {
         return $content;
@@ -10,7 +14,6 @@ function p($content) {
     }
     // Automatic paragraph converter
     $p = static function ($v) {
-
         $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>])*)?)\/?>\s*/i', '<br$1>' . \P, $v) : $v;
         $v = \rtrim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
         return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\trim($v), [
@@ -67,7 +70,7 @@ function p($content) {
             }
         }
         return $blocks;
-    })($blocks))) . ')/', "\n" . \trim(\n($content), "\n") . "\n", null, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
+    })($blocks))) . ')/', "\n" . \trim(\n($content), "\n") . "\n", -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
     $out = "";
     foreach ($parts as $v) {
         if ("" === $v || "\n" === $v || "\n\n" === $v) {
