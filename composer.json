@@ -1,0 +1,8 @@
+{
+  "description": "Convert line break sequences into paragraph and hard break elements.",
+  "license": "GPL-3.0-or-later",
+  "name": "mecha-cms/x.p",
+  "require": {
+    "mecha-cms/x.page": "^2.0.0"
+  }
+}

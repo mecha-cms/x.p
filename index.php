@@ -1,13 +1,17 @@
 <?php namespace x;
 
 function p($content) {
+    if (!$content) {
+        return $content;
+    }
     $type = $this->type;
     if ($type && 'HTML' !== $type && 'text/html' !== $type) {
         return $content;
     }
     // Automatic paragraph converter
-    $p = static function($v) {
-        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[^>]*)?(\s*\/)?>\s*/', '<br$1>' . \P, $v) : $v;
+    $p = static function ($v) {
+
+        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>])*)?)\/?>\s*/i', '<br$1>' . \P, $v) : $v;
         $v = \rtrim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
         return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\trim($v), [
             "\n\n" => "</p>\n<p>",
@@ -52,12 +56,12 @@ function p($content) {
         'table' => 1,
         'textarea' => 1
     ];
-    $parts = \preg_split('/(<!--[\s\S]*?-->|' . \implode('|', \array_filter((static function($blocks) {
+    $parts = \preg_split('/(<!--[\s\S]*?-->|' . \implode('|', \array_filter((static function ($blocks) {
         foreach ($blocks as $k => &$v) {
             if (2 === $v) {
-                $v = '<' . $k . '(?:\s[^>]*)?(?:\s*\/)?>|<\/' . $k . '>';
+                $v = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>])*)?)*\/?>|<\/' . $k . '>';
             } else if (1 === $v) {
-                $v = '<' . $k . '(?:\s[^>]*)?>[\s\S]*?<\/' . $k . '>';
+                $v = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>])*)?)*>[\s\S]*?<\/' . $k . '>';
             } else {
                 $v = null;
             }
@@ -71,16 +75,18 @@ function p($content) {
         }
         if (0 === \strpos($v, '<!--') && '-->' === \substr($v, -3)) {
             $out .= $v;
-        } else if ('<' === $v[0] && '>' === \substr($v, -1)) {
+            continue;
+        }
+        if ('<' === $v[0] && '>' === \substr($v, -1)) {
             $n = \explode(' ', \strstr(\substr($v, 1), '>', true), 2)[0];
             if (isset($blocks[\trim($n, '/')])) {
                 $out .= "\n" . $v;
-            } else {
-                $out .= $p($v);
+                continue;
             }
-        } else {
             $out .= $p($v);
+            continue;
         }
+        $out .= $p($v);
     }
     $out = \strtr($out, [
         \P . "\n" => "",

@@ -1,9 +1,10 @@
 ---
 title: Automatic Paragraph
 description: Convert line break sequences into paragraph and hard break elements.
+icon: 'M10,11A4,4 0 0,1 6,7A4,4 0 0,1 10,3H18V5H16V21H14V5H12V21H10V11Z'
 author: Taufik Nurrohman
 type: Markdown
-version: 2.2.2
+version: 2.3.0
 
 use:
   '.\lot\x\page': 1
