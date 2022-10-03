@@ -60,3 +60,58 @@ aaa
 <img alt="" src="http://example.com/image.jpg">
 
 aaa
+
+<details>
+  <summary>aaa</summary>
+  aaa
+</details>
+
+<details>
+  <summary>aaa</summary>
+  aaa
+
+  aaa
+</details>
+
+<table>
+  <caption>aaa</caption>
+  <tr>
+    <td>aaa</td>
+    <td>aaa</td>
+    <td>
+    aaa TODO: Allow paragraph here!
+    </td>
+  </tr>
+</table>
+
+aaa
+
+<figure>
+  <img alt="" src="http://example.com/image.jpg">
+</figure>
+
+<figure>
+  <img alt="" src="http://example.com/image.jpg">
+  <figcaption>aaa</figcaption>
+</figure>
+
+<figure>
+  <img alt="" src="http://example.com/image.jpg">
+  <figcaption>
+  aaa TODO: Allow paragraph here!
+  </figcaption>
+</figure>
+
+aaa
+
+aaa
+
+<p class="aaa">aaa</p>
+
+<p class="aaa">
+aaa
+</p>
+
+aaa
+<br class="aaa">
+aaa

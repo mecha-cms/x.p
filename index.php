@@ -14,9 +14,9 @@ function p($content) {
     }
     // Automatic paragraph converter
     $p = static function ($v) {
-        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>])*)?)\/?>\s*/i', '<br$1>' . \P, $v) : $v;
-        $v = \rtrim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
-        return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\trim($v), [
+        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>]*))?)\/?>\s*/i', '<br$1>' . \P, $v) : $v;
+        $v = \trim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
+        return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\preg_replace('/\n[ ]*/', "\n", \trim($v)), [
             "\n\n" => "</p>\n<p>",
             "\n" => "<br>\n"
         ]) . "</p>" : \strtr($v = \trim($v), [
@@ -28,6 +28,8 @@ function p($content) {
     $blocks = [
         'blockquote' => 2,
         'body' => 2,
+        'caption' => 1,
+        'details' => 2,
         'div' => 2,
         'footer' => 2,
         'header' => 2,
@@ -56,45 +58,47 @@ function p($content) {
         'pre' => 1,
         'script' => 1,
         'style' => 1,
+        'summary' => 1,
         'table' => 1,
         'textarea' => 1
     ];
-    $parts = \preg_split('/(<!--[\s\S]*?-->|' . \implode('|', \array_filter((static function ($blocks) {
-        foreach ($blocks as $k => &$v) {
+    $parts = \preg_split('/(<!--[\s\S]*?-->|' . \implode('|', \array_filter((static function ($tags) {
+        foreach ($tags as $k => &$v) {
             if (2 === $v) {
-                $v = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>])*)?)*\/?>|<\/' . $k . '>';
+                $v = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>]*))?)*\/?>|<\/' . $k . '>';
             } else if (1 === $v) {
-                $v = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>])*)?)*>[\s\S]*?<\/' . $k . '>';
+                $v = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>]*))?)*>[\s\S]*?<\/' . $k . '>';
             } else {
                 $v = null;
             }
         }
-        return $blocks;
+        unset($v);
+        return $tags;
     })($blocks))) . ')/', "\n" . \trim(\n($content), "\n") . "\n", -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
     $out = "";
-    foreach ($parts as $v) {
-        if ("" === $v || "\n" === $v || "\n\n" === $v) {
+    foreach ($parts as $part) {
+        if ("" === $part || "\n" === $part || "\n\n" === $part) {
             continue;
         }
-        if (0 === \strpos($v, '<!--') && '-->' === \substr($v, -3)) {
-            $out .= $v;
+        if (0 === \strpos($part, '<!--') && '-->' === \substr($part, -3)) {
+            $out .= $part;
             continue;
         }
-        if ('<' === $v[0] && '>' === \substr($v, -1)) {
-            $n = \explode(' ', \strstr(\substr($v, 1), '>', true), 2)[0];
+        if ('<' === $part[0] && '>' === \substr($part, -1)) {
+            $n = \strtok(\substr($part, 1, -1), " \n\r\t>");
             if (isset($blocks[\trim($n, '/')])) {
-                $out .= "\n" . $v;
+                $out .= "\n" . $part;
                 continue;
             }
-            $out .= $p($v);
+            $out .= $p($part);
             continue;
         }
-        $out .= $p($v);
+        $out .= $p($part);
     }
-    $out = \strtr($out, [
+    $out = \trim(\strtr($out, [
         \P . "\n" => "",
         \P => "\n"
-    ]);
+    ]));
     return "" !== $out ? $out : null;
 }
 
