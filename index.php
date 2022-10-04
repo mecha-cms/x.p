@@ -12,20 +12,19 @@ function p($content) {
     if ($type && 'HTML' !== $type && 'text/html' !== $type) {
         return $content;
     }
-    // Automatic paragraph converter
-    $p = static function ($v) {
-        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>]*))?)\/?>\s*/i', '<br$1>' . \P, $v) : $v;
-        $v = \trim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
-        return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\preg_replace('/\n[ ]*/', "\n", \trim($v)), [
-            "\n\n" => "</p>\n<p>",
-            "\n" => "<br>\n"
-        ]) . "</p>" : \strtr($v = \trim($v), [
-            "\n" => "<br>\n"
-        ]) . ("" !== $v ? \P : "");
-    };
+    $blocks = [
+        // Character data section
+        '<\!\[CDATA\[[\s\S]*?\]\]>',
+        // Comment
+        '<\!--[\s\S]*?-->',
+        // Document type
+        '<\!(?:"[^"]*"|\'[^\']*\'|[^>])*>',
+        // Processing instruction
+        '<\?(?:"[^"]*"|\'[^\']*\'|[^>?])*\?>'
+    ];
     // `1`: Disallow converting to paragraph in these block(s)
     // `2`: Allow converting to paragraph in these block(s)
-    $blocks = [
+    foreach ([
         'blockquote' => 2,
         'body' => 2,
         'caption' => 1,
@@ -61,32 +60,46 @@ function p($content) {
         'summary' => 1,
         'table' => 1,
         'textarea' => 1
-    ];
-    $parts = \preg_split('/(<!--[\s\S]*?-->|' . \implode('|', \array_filter((static function ($tags) {
-        foreach ($tags as $k => &$v) {
-            if (2 === $v) {
-                $v = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>]*))?)*\/?>|<\/' . $k . '>';
-            } else if (1 === $v) {
-                $v = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>]*))?)*>[\s\S]*?<\/' . $k . '>';
-            } else {
-                $v = null;
-            }
+    ] as $k => $v) {
+        if (2 === $v) {
+            $blocks[$k] = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>]*))?)*\/?>|<\/' . $k . '>';
+        } else if (1 === $v) {
+            $blocks[$k] = '<' . $k . '(?:\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>]*))?)*>(?:(?R)|[\s\S])*?<\/' . $k . '>';
         }
-        unset($v);
-        return $tags;
-    })($blocks))) . ')/', "\n" . \trim(\n($content), "\n") . "\n", -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
+    }
+    // Automatic paragraph converter
+    $p = static function ($v) {
+        $v = false !== \strpos($v, '<br') ? \preg_replace('/\s*<br(\s[\p{L}\p{N}_:-]+(?:=(?:"[^"]*"|\'[^\']*\'|[^\/>]*))?)\/?>\s*/i', '<br$1>' . \P, $v) : $v;
+        $v = \trim(false !== \strpos($v, "\n") ? \preg_replace('/\n{3,}/', "\n\n", $v) : $v, ' ');
+        return "\n" !== $v && 0 === \strpos($v, "\n") && "\n" === \substr($v, -1) ? "\n<p>" . \strtr(\preg_replace('/\n[ ]*/', "\n", \trim($v)), [
+            "\n\n" => "</p>\n<p>",
+            "\n" => "<br>\n"
+        ]) . "</p>" : \strtr($v = \trim($v), [
+            "\n" => "<br>\n"
+        ]) . ("" !== $v ? \P : "");
+    };
+    $parts = \preg_split('/(' . \implode('|', $blocks) . ')/', "\n" . \trim(\n($content), "\n") . "\n", -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
     $out = "";
     foreach ($parts as $part) {
         if ("" === $part || "\n" === $part || "\n\n" === $part) {
             continue;
         }
-        if (0 === \strpos($part, '<!--') && '-->' === \substr($part, -3)) {
+        if (
+            // Character data section
+            0 === \strpos($part, '<![CDATA[') && ']]>' === \substr($part, -3) ||
+            // Comment
+            0 === \strpos($part, '<!--') && '-->' === \substr($part, -3) ||
+            // Document type
+            0 === \strpos($part, '<!') && '>' === \substr($part, -1) ||
+            // Processing instruction
+            0 === \strpos($part, '<?') && '?>' === \substr($part, -2)
+        ) {
             $out .= $part;
             continue;
         }
         if ('<' === $part[0] && '>' === \substr($part, -1)) {
-            $n = \strtok(\substr($part, 1, -1), " \n\r\t>");
-            if (isset($blocks[\trim($n, '/')])) {
+            $n = \trim(\strtok(\substr($part, 1, -1), " \n\r\t>"), '/');
+            if (isset($blocks[$n]) && !\is_numeric($n)) {
                 $out .= "\n" . $part;
                 continue;
             }
