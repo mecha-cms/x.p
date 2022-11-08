@@ -115,7 +115,4 @@ function p($content) {
     return "" !== $out ? $out : null;
 }
 
-\Hook::set([
-    'page.content',
-    'page.description'
-], __NAMESPACE__ . "\\p", 2.1);
+\Hook::set('page.content', __NAMESPACE__ . "\\p", 2.1);
