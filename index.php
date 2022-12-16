@@ -1,9 +1,5 @@
 <?php namespace x;
 
-if (\defined("\\TEST") && 'x.p' === \TEST) {
-    require __DIR__ . \D . 'test.php';
-}
-
 function p($content) {
     if (!$content) {
         return $content;
@@ -116,3 +112,7 @@ function p($content) {
 }
 
 \Hook::set('page.content', __NAMESPACE__ . "\\p", 2.1);
+
+if (\defined("\\TEST") && 'x.p' === \TEST && \is_file($test = __DIR__ . \D . 'test.php')) {
+    require $test;
+}
