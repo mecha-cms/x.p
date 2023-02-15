@@ -2,6 +2,7 @@
 title: Automatic Paragraph
 description: Converts line break sequences into paragraph and hard break elements.
 icon: 'M10,11A4,4 0 0,1 6,7A4,4 0 0,1 10,3H18V5H16V21H14V5H12V21H10V11Z'
+color: '#0f549d'
 author: Taufik Nurrohman
 type: Markdown
 version: 2.3.0
@@ -10,7 +11,10 @@ use:
   '.\lot\x\page': 1
 ...
 
-This extension inserts `<p>` and `<br>` tags automatically to the page content by detecting the surrounding `\n` characters. This extension will pay attention to which parts need to be automated and which do not. For example, this extension will never insert paragraph tags within the `<pre>`, `<script>`, `<style>` and `<textarea>` elements. This extension works only for pages with `type` of `HTML` and `text/html`.
+This extension inserts `<p>` and `<br>` tags automatically to the page content by detecting the surrounding `\n`
+characters. This extension will pay attention to which parts need to be automated and which do not. For example, this
+extension will never insert paragraph tags within the `<pre>`, `<script>`, `<style>` and `<textarea>` elements. This
+extension works only for pages with `type` of `HTML` and `text/html`.
 
 ### Before
 
