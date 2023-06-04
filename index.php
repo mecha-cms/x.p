@@ -1,6 +1,6 @@
-<?php namespace x\p\page;
+<?php namespace x\p;
 
-function content($content) {
+function page__content($content) {
     if (!$content) {
         return $content;
     }
@@ -111,7 +111,7 @@ function content($content) {
     return "" !== $out ? $out : null;
 }
 
-\Hook::set('page.content', __NAMESPACE__ . "\\content", 2.1);
+\Hook::set('page.content', __NAMESPACE__ . "\\page__content", 2.1);
 
 if (\defined("\\TEST") && 'x.p' === \TEST && \is_file($test = __DIR__ . \D . 'test.php')) {
     require $test;
